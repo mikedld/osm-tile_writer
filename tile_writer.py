@@ -54,8 +54,8 @@ tile_format = 'tms'
 
 # ==============================================================================
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 from qgis.core import *
 import qgis.utils
@@ -79,9 +79,7 @@ borderLayer = QgsVectorLayer(area_of_interest, 'border', 'ogr')
 borderRect = borderLayer.extent()
 borderCRS = borderLayer.crs()
 
-mapRenderer = iface.mapCanvas().mapRenderer()
-
-mapRect = QgsCoordinateTransform(borderCRS, QgsCoordinateReferenceSystem('EPSG:4326')).transform(borderRect) # WGS84
+mapRect = QgsCoordinateTransform(borderCRS, QgsCoordinateReferenceSystem('EPSG:4326'), QgsProject.instance()).transform(borderRect) # WGS84
 
 xStart = mapRect.xMinimum()
 xEnd = mapRect.xMaximum()
@@ -154,14 +152,12 @@ for z in range(start_z, end_z + 1, 1):
                 image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
 
                 settings = QgsMapSettings()
-                settings.setCrsTransformEnabled(True)
                 settings.setOutputDpi(95.0)
                 settings.setOutputImageFormat(QImage.Format_ARGB32_Premultiplied)
                 settings.setDestinationCrs(QgsCoordinateReferenceSystem('EPSG:3857'))
                 settings.setOutputSize(QSize(width, height))
-                settings.setLayers(mapRenderer.layerSet())
+                settings.setLayers(QgsProject.instance().layerTreeRoot().checkedLayers())
                 settings.setFlag(QgsMapSettings.DrawLabeling, True)
-                settings.setMapUnits(QGis.Meters)
                 settings.setBackgroundColor(QColor(127, 127, 127, 0))
 
                 tileRect = QgsRectangle(lat_min, lon_min, lat_max, lon_max)
