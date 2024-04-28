@@ -75,6 +75,15 @@ def delay(millisecondsToWait):
     while QTime.currentTime() < dieTime:
         QCoreApplication.processEvents(QEventLoop().AllEvents, 100)
 
+# Override settings from environment variables, if present
+start_z = int(os.environ.get("OSM_TILE_WRITER_START_Z", str(start_z)))
+end_z = int(os.environ.get("OSM_TILE_WRITER_END_Z", str(end_z)))
+step = int(os.environ.get("OSM_TILE_WRITER_STEP", str(step)))
+border = int(os.environ.get("OSM_TILE_WRITER_BORDER", str(border)))
+output_path = os.environ.get("OSM_TILE_WRITER_OUTPUT_PATH", output_path)
+area_of_interest = os.environ.get("OSM_TILE_WRITER_AREA_OF_INTEREST", area_of_interest)
+tile_format = os.environ.get("OSM_TILE_WRITER_FORMAT", tile_format)
+
 borderLayer = QgsVectorLayer(area_of_interest, 'border', 'ogr')
 borderRect = borderLayer.extent()
 borderCRS = borderLayer.crs()
