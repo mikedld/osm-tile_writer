@@ -73,10 +73,6 @@ import math
 
 from globalmercator import GlobalMercator
 
-def delay(millisecondsToWait):
-    dieTime = QTime().currentTime().addMSecs(millisecondsToWait)
-    while QTime.currentTime() < dieTime:
-        QCoreApplication.processEvents(QEventLoop().AllEvents, 100)
 
 # Override settings from environment variables, if present
 start_z = int(os.environ.get("OSM_TILE_WRITER_START_Z", str(start_z)))
@@ -176,10 +172,12 @@ for z in range(start_z, end_z + 1, 1):
                 tileRect = QgsRectangle(lat_min, lon_min, lat_max, lon_max)
                 settings.setExtent(tileRect)
 
+                loop = QEventLoop()
                 job = QgsMapRendererSequentialJob(settings)
+                job.finished.connect(loop.quit)
                 job.start()
+                loop.exec()
                 job.waitForFinished()
-                delay(10)
                 image = job.renderedImage()
                 image.save(imagePath, "PNG")
                 print("*", end="", flush=True)
