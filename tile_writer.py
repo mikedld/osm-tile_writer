@@ -53,6 +53,10 @@ tile_format = 'tms'
 # Tiles image format (png or jpg); regional tiles are always png
 tile_image_format = 'png'
 
+# Tiles image background color; empty means transparent - may not look good
+# for image formats that don't support it
+tile_image_bg_color = ""
+
 # End user-editable settings
 
 # ==============================================================================
@@ -83,6 +87,7 @@ output_path = os.environ.get("OSM_TILE_WRITER_OUTPUT_PATH", output_path)
 area_of_interest = os.environ.get("OSM_TILE_WRITER_AREA_OF_INTEREST", area_of_interest)
 tile_format = os.environ.get("OSM_TILE_WRITER_FORMAT", tile_format)
 tile_image_format = os.environ.get("OSM_TILE_WRITER_IMAGE_FORMAT", tile_image_format)
+tile_image_bg_color = os.environ.get("OSM_TILE_WRITER_IMAGE_BG_COLOR", tile_image_bg_color)
 
 borderLayer = QgsVectorLayer(area_of_interest, 'border', 'ogr')
 borderRect = borderLayer.extent()
@@ -213,10 +218,10 @@ for z in range(start_z, end_z + 1, 1):
                             print("o", end="", flush=True)
                         else:
                             dstImage = srcImage.copy(px, h - py, 256, 256)
-                            if tile_image_format == "jpg":
+                            if tile_image_bg_color:
                                 painter = QPainter(dstImage)
                                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
-                                painter.fillRect(dstImage.rect(), QColor("#ededed"));
+                                painter.fillRect(dstImage.rect(), QColor(tile_image_bg_color));
                                 painter.end()
                             dstImage.save(dstPath, tile_image_format.upper(), 85 if tile_image_format == "jpg" else 0)
                             print("*", end="", flush=True)
